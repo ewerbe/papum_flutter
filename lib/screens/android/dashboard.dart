@@ -1,6 +1,5 @@
 import 'package:papum/screens/android/login.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 
 import 'freteiro/freteiro_list.dart';
 
@@ -37,16 +36,16 @@ class Dashboard extends StatelessWidget {
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: <Widget>[
-                      _ItemElemento('PACIENTES', Icons.accessibility_new,
+                      _ItemElemento('FRETEIROS', Icons.accessibility_new,
                         onClick:  (){
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => PacienteList()
+                              builder: (context) => FreteiroList()
                           ));
 
                         },
                       ),
-                      _ItemElemento('RESULTADOS', Icons.check_circle_outline, onClick: (){
-                        debugPrint('resutlados ....');
+                      _ItemElemento('ORÇAMENTOS', Icons.check_circle_outline, onClick: (){
+                        debugPrint('ORÇAMENTOS ....');
                       },
                       ),
                     ],
@@ -62,12 +61,12 @@ class Dashboard extends StatelessWidget {
     return Container(
       alignment: Alignment.topRight,
       padding: const EdgeInsets.all(10.0),
-      child: Text('Checklist COVID-19'),
+      child: Text('PAPUM Mudanças'),
     );
   }
 
   Widget _imgCentral(){
-    return Image.asset('imagens/covid-checklist.jpg');
+    return Image.asset('imagens/logo-PAPUM.png');
   }
 }
 

@@ -1,98 +1,92 @@
-import 'package:papum/database/openDatabaseDB.dart';
+
 import 'package:papum/model/frete.dart';
 import 'package:papum/model/freteiro.dart';
-import 'package:papum/screens/android/frete/frete_orcamento.dart';
 import 'package:papum/service/frete_service.dart';
 import 'package:sqflite/sqflite.dart';
 
+import 'openDatabaseDB.dart';
 
-class CheckSintomasDAO{
 
-  static const String _nomeTabela = 'checksintomas';
-  static const String _col_id = 'id_cs';
-  static const String _col_idpaciente = 'idpaciente';
-  static const String _col_temperatura = 'temperatura';
-  static const String _col_qtdDias = 'qtdiassintomas';
-  static const String _col_isTosse = 'tosse';
-  static const String _col_isCatarro = 'catarro';
-  static const String _col_isRouquidao = 'rouquidao';
-  static const String _col_isDorGarganta = 'dorgarganta';
-  static const String _col_isNarizEntupido = 'narizentupido';
-  static const String _col_dataAvaliavao = 'dataavaliacao';
-  static const String _col_isCasoSuspeito = 'casosuspeito';
+class FreteDAO{
 
+  static const String _nomeTabela = 'frete';
+  static const String _col_id = 'id_frete';
+  static const String _col_idfreteiro = 'idfreteiro';
+  static const String _col_isOutraCidade = 'outracidade';
+  static const String _col_isForaEstado = 'foraestado';
+  static const String _col_maisDoisCarregadores = 'maisdoiscarregadores';
+  static const String _col_maisUmCarregador = 'maisumcarregador';
+  static const String _col_embalagensProntas= 'embalagensprontas';
+  static const String _col_dataOrcamento = 'dataorcamento';
+  static const String _col_precoFinal = 'precofinal';
 
   static const String sqlTabela = 'CREATE TABLE $_nomeTabela ('
       '$_col_id INTEGER PRIMARY KEY, '
-      '$_col_idpaciente INTEGER, '
-      '$_col_temperatura INTEGER, '
-      '$_col_qtdDias INTEGER, '
-      '$_col_isTosse INTEGER, '
-      '_$_col_isCatarro INTEGER, '
-      '$_col_isRouquidao INTEGER, '
-      '$_col_isDorGarganta INTEGER, '
-      '$_col_isNarizEntupido INTEGER, '
-      '$_col_dataAvaliavao TEXT, '
-      '$_col_isCasoSuspeito INTEGER, '
-      'FOREIGN KEY ($_col_idpaciente) REFERENCES paciente(id))';
+      '$_col_idfreteiro INTEGER, '
+      '$_col_isOutraCidade INTEGER, '
+      '$_col_isForaEstado INTEGER, '
+      '$_col_maisDoisCarregadores INTEGER, '
+      '_$_col_maisUmCarregador INTEGER, '
+      '$_col_embalagensProntas INTEGER, '
+      '$_col_dataOrcamento TEXT, '
+      '$_col_precoFinal INTEGER, '
+      'FOREIGN KEY ($_col_idfreteiro) REFERENCES freteiro(id))';
 
-  //static final List<CheckSintomasModel> _checkSintomasPaciente = [];
 
-  static adicionar(CheckSintomasModel cs) async{
 
-    cs.isCasoSuspeito = DefinicaoCasoSuspeito().casoSuspeito(cs);
+  static adicionar(Frete frete) async{
+
+    frete.precoFinal = FreteService().calculaOrcamento(frete);
 
     final Database db = await getDatabase();
-    db.insert(_nomeTabela, cs.toMap());
+    db.insert(_nomeTabela, frete.toMap());
 
     //_checkSintomasPaciente.add(cs);
   }
 
 
-  static const String _nomeTabelaPaciente = 'paciente';
-  static const String _col_idP = 'id';
+  static const String _nomeTabelaFreteiro = 'freteiro';
+  static const String _col_idF = 'id';
   static const String _col_nome = 'nome';
-  static const String _col_email = 'email';
+  static const String _col_whatsapp = 'whatsapp';
   static const String _col_idade = 'idade';
-  static const String _col_cartao = 'cartao';
+  static const String _col_placa = 'placa';
   static const String _col_senha = 'senha';
   static const String _col_foto = 'foto';
 
 
-  Future<List<CheckSintomasModel>> getPacienteCheckSintomas(Paciente p) async {
+  Future<List<Frete>> getFreteiroFrete(Freteiro f) async {
 
     final Database db = await getDatabase();
     final List<Map<String, dynamic>> maps =
-    await db.rawQuery('SELECT * FROM $_nomeTabela cs, $_nomeTabelaPaciente p '
-        'WHERE cs.idpaciente = p.id AND p.id = '+p.id.toString());
+    await db.rawQuery('SELECT * FROM $_nomeTabela cs, $_nomeTabelaFreteiro f '
+        'WHERE cs.idfreteiro = f.id AND f.id = '+f.id.toString());
 
     return List.generate(maps.length, (i) {
 
-      Paciente paciente = Paciente(
-        maps[i][_col_idP],
+      Freteiro freteiro = Freteiro(
+        maps[i][_col_idF],
         maps[i][_col_nome],
-        maps[i][_col_email],
-        maps[i][_col_cartao],
+        maps[i][_col_whatsapp],
+        maps[i][_col_placa],
         maps[i][_col_idade],
         maps[i][_col_senha],
         maps[i][_col_foto],
       );
 
 
-      CheckSintomasModel cs = CheckSintomasModel(
-          maps[i][_col_idP],
-          paciente,
-          maps[i][_col_temperatura],
-          maps[i][_col_qtdDias],
-          maps[i][_col_isNarizEntupido] == 1? true : false,
-          maps[i][_col_isDorGarganta] == 1? true : false,
-          maps[i][_col_isRouquidao] == 1? true : false,
-          maps[i][_col_isCatarro] == 1? true : false,
-          maps[i][_col_isTosse] == 1? true : false,
-          DateTime.parse(maps[i][_col_dataAvaliavao])
+      Frete frete = Frete(
+          maps[i][_col_idF],
+          freteiro,
+          maps[i][_col_isOutraCidade] == 1? true : false,
+          maps[i][_col_isForaEstado] == 1? true : false,
+          maps[i][_col_maisDoisCarregadores] == 1? true : false,
+          maps[i][_col_maisUmCarregador] == 1? true : false,
+          maps[i][_col_embalagensProntas] == 1? true : false,
+          DateTime.parse(maps[i][_col_dataOrcamento])
       );
-      cs.isCasoSuspeito = maps[i][_col_isCasoSuspeito] == 1? true : false;
-      return cs;
+      frete.precoFinal = maps[i][_col_precoFinal];
+      return frete;
     });
   }
 
